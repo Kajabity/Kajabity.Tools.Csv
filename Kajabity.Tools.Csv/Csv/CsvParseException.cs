@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-15 Williams Technologies Limited.
+ * Copyright 2009-17 Williams Technologies Limited.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,13 @@
  * http://www.kajabity.com
  */
 
-using System;
-
 namespace Kajabity.Tools.Csv
 {
-	/// <summary>
-	/// An exception thrown by <see cref="CsvReader"/> when parsing
-	/// a CSV stream.
-	/// </summary>
-	public class CsvParseException : System.Exception
+    /// <summary>
+    /// An exception thrown by <see cref="CsvReader"/> when parsing
+    /// a CSV stream.
+    /// </summary>
+    public class CsvParseException : System.Exception
 	{
 		/// <summary>
 		/// Construct an exception with an error message.
