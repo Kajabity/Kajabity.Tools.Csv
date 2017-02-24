@@ -145,7 +145,7 @@ namespace Kajabity.Tools.Csv
         public CsvWriter(Stream stream)
         {
             // Write the data in the US-ASCII format (code page 20127)
-            writer = new StreamWriter(stream, System.Text.Encoding.GetEncoding(20127));
+            writer = new StreamWriter(stream, System.Text.Encoding.GetEncoding( "us-ascii" ));
         }
 
         /// <summary>
