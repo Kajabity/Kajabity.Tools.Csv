@@ -21,6 +21,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 
 namespace Kajabity.Tools.Csv
 {
@@ -39,14 +40,17 @@ namespace Kajabity.Tools.Csv
         //	---------------------------------------------------------------------
 
         //	All the states.
-        private const int STATE_Start = 0;
-        private const int STATE_Field = 1;
-        private const int STATE_Quoted = 2;
-        private const int STATE_DoubleQuote = 3;
-        private const int STATE_SkipTrailingSpace = 4;
-        private const int STATE_EndField = 5;
-        private const int STATE_EndLine = 6;
-        private const int STATE_EndFile = 7;
+        private enum State
+        {
+            Start,
+            Field,
+            Quoted,
+            DoubleQuote,
+            SkipTrailingSpace,
+            EndField,
+            EndLine,
+            EndFile
+        }
 
         /// <summary>
         /// Used in debug and error reporting.
@@ -57,67 +61,71 @@ namespace Kajabity.Tools.Csv
         };
 
         //	The different types of matcher used.
-        private const int MATCH_none = 0;
-        private const int MATCH_EOF = 1;
-        private const int MATCH_Separator = 2;
-        private const int MATCH_LineFeed = 3;
-        private const int MATCH_DoubleQuote = 4;
-        private const int MATCH_WhiteSpace = 5;
-        private const int MATCH_Any = 6;
+        private enum Match
+        {
+            None,
+            EOF,
+            Separator,
+            LineFeed,
+            DoubleQuote,
+            WhiteSpace,
+            Any
+        }
 
         //	Actions performed when a character is matched.
-        private const int ACTION_none = 0;
-        private const int ACTION_SaveField = 1;
-        private const int ACTION_SaveLine = 2;
-        private const int ACTION_AppendToField = 3;
-        private const int ACTION_AppendLineFeedToField = 4;
+        private enum Action
+        {
+            None,
+            SaveField,
+            SaveLine,
+            AppendToField,
+            AppendLineFeedToField
+        }
 
         /// <summary>
         /// The State Machine - an array of states, each an array of transitions, and each of those
         /// an array of integers grouped in threes - { match condition, next state, action to perform }.
         /// </summary>
-        private static readonly int[][] States =
+        private static readonly (Match match, State nextState, Action action)[][] States = new (Match, State, Action)[][]
         {
-            new int[]{//STATE_Start
-                //MATCH_WhiteSpace,       STATE_Start,            ACTION_none,
-                MATCH_Separator,        STATE_EndField,         ACTION_SaveField,
-                MATCH_DoubleQuote,      STATE_Quoted,           ACTION_none,
-                MATCH_LineFeed,         STATE_EndLine,          ACTION_SaveLine,
-                MATCH_EOF,              STATE_EndFile,          ACTION_SaveLine,
-                MATCH_Any,              STATE_Field,            ACTION_AppendToField,
+            new[] { // Start
+                (Match.Separator, State.EndField, Action.SaveField),
+                (Match.DoubleQuote, State.Quoted, Action.None),
+                (Match.LineFeed, State.EndLine, Action.SaveLine),
+                (Match.EOF, State.EndFile, Action.SaveLine),
+                (Match.Any, State.Field, Action.AppendToField),
             },
-            new int[]{//STATE_Field
-                MATCH_Separator,        STATE_EndField,         ACTION_SaveField,
-                MATCH_LineFeed,         STATE_EndLine,          ACTION_SaveLine,
-                MATCH_EOF,              STATE_EndFile,          ACTION_SaveLine,
-                MATCH_Any,              STATE_Field,            ACTION_AppendToField,
+            new[] { // Field
+                (Match.Separator, State.EndField, Action.SaveField),
+                (Match.LineFeed, State.EndLine, Action.SaveLine),
+                (Match.EOF, State.EndFile, Action.SaveLine),
+                (Match.Any, State.Field, Action.AppendToField),
             },
-            new int[]{//STATE_Quoted
-                MATCH_DoubleQuote,      STATE_DoubleQuote,      ACTION_none,
-                MATCH_EOF,              STATE_EndFile,          ACTION_SaveLine,
-                MATCH_LineFeed,         STATE_Quoted,           ACTION_AppendLineFeedToField,
-                MATCH_Any,              STATE_Quoted,           ACTION_AppendToField,
+            new[] { // Quoted
+                (Match.DoubleQuote, State.DoubleQuote, Action.None),
+                (Match.EOF, State.EndFile, Action.SaveLine),
+                (Match.LineFeed, State.Quoted, Action.AppendLineFeedToField),
+                (Match.Any, State.Quoted, Action.AppendToField),
             },
-            new int[]{//STATE_DoubleQuote
-                MATCH_DoubleQuote,      STATE_Quoted,           ACTION_AppendToField,
-                MATCH_EOF,              STATE_EndFile,          ACTION_SaveLine,
-                MATCH_Separator,        STATE_EndField,         ACTION_SaveField,
-                MATCH_LineFeed,         STATE_EndLine,          ACTION_SaveLine,
-                //MATCH_WhiteSpace,       STATE_SkipTrailingSpace,ACTION_none,
+            new[] { // DoubleQuote
+                (Match.DoubleQuote, State.Quoted, Action.AppendToField),
+                (Match.EOF, State.EndFile, Action.SaveLine),
+                (Match.Separator, State.EndField, Action.SaveField),
+                (Match.LineFeed, State.EndLine, Action.SaveLine),
             },
-            new int[]{//STATE_SkipTrailingSpace
-                MATCH_EOF,              STATE_EndFile,          ACTION_SaveLine,
-                MATCH_Separator,        STATE_EndField,         ACTION_SaveField,
-                MATCH_LineFeed,         STATE_EndLine,          ACTION_SaveLine,
-                MATCH_WhiteSpace,       STATE_SkipTrailingSpace,ACTION_none,
+            new[] { // SkipTrailingSpace
+                (Match.EOF, State.EndFile, Action.SaveLine),
+                (Match.Separator, State.EndField, Action.SaveField),
+                (Match.LineFeed, State.EndLine, Action.SaveLine),
+                (Match.WhiteSpace, State.SkipTrailingSpace, Action.None),
             },
-            new int[]{//STATE_EndField
-                MATCH_none,             STATE_Start,            ACTION_none,
+            new[] { // EndField
+                (Match.None, State.Start, Action.None),
             },
-            new int[]{//STATE_EndLine
-                MATCH_none,             STATE_Start,            ACTION_none,
+            new[] { // EndLine
+                (Match.None, State.Start, Action.None),
             },
-            //STATE_EndFile - no state transitions.
+            // EndFile: no transitions
         };
 
         #endregion
@@ -162,7 +170,7 @@ namespace Kajabity.Tools.Csv
         /// <summary>
         /// The starting state for the parser engine.
         /// </summary>
-        private int state = STATE_Start;
+        private State state = State.Start;
 
         /// <summary>
         /// The input stream that characters are read and parsed from.
@@ -219,13 +227,13 @@ namespace Kajabity.Tools.Csv
         public string ReadField()
         {
             // Check we haven't passed the end of the line/file.
-            if (state > STATE_EndField)
+            if (state > State.EndField)
             {
                 return null;
             }
 
             // Parse the next field.
-            Parse(STATE_EndField);
+            Parse(State.EndField);
 
             // Return and remove the last field.
             string field = fieldList[fieldList.Count - 1];
@@ -241,13 +249,13 @@ namespace Kajabity.Tools.Csv
         public string[] ReadRecord()
         {
             // Check we haven't passed the end of the file.
-            if (state > STATE_EndLine)
+            if (state > State.EndLine)
             {
                 return null;
             }
 
             // Parse to the end of the current line.
-            Parse(STATE_EndLine);
+            Parse(State.EndLine);
 
             // Return and remove the last row.
             string[] record = rowList[rowList.Count - 1];
@@ -263,13 +271,13 @@ namespace Kajabity.Tools.Csv
         public string[][] ReadAll()
         {
             // Check we haven't passed the end of the file.
-            if (state == STATE_EndFile)
+            if (state == State.EndFile)
             {
                 return null;
             }
 
             // Parse to the end of the file.
-            Parse(STATE_EndFile);
+            Parse(State.EndFile);
 
             // Return and remove the last field.
             string[][] records = rowList.ToArray();
@@ -285,11 +293,11 @@ namespace Kajabity.Tools.Csv
         /// by indicating which state to finish on.</param>
         /// <exception cref="T:CsvParseException">Thrown when an unexpected/invalid character
         /// is encountered in the input stream.</exception>
-        private void Parse(int finalSate)
+        private void Parse(State finalSate)
         {
-            if (finalSate >= STATE_EndFile)
+            if (finalSate >= State.EndFile)
             {
-                finalSate = STATE_EndFile;
+                finalSate = State.EndFile;
             }
 
             bool lambda = false;
@@ -307,28 +315,29 @@ namespace Kajabity.Tools.Csv
                     ch = NextChar();
                 }
 
-                for (int s = 0; s < States[state].Length; s += 3)
+
+                foreach (var transition in States[(int)state])
                 {
-                    if (Matches(States[state][s], ch))
+                    if (Matches(transition.match, ch))
                     {
-                        //Debug.WriteLine( stateNames[ state ] + ", " + (s/3) + ", " + ch + (ch>20?" (" + (char) ch + ")" : "") );
+                        //Debug.WriteLine( StateNames[(int)state] + ", " + ch + (ch > 20 ? " (" + (char)ch + ")" : "") );
                         matched = true;
 
-                        if (States[state][s] == MATCH_none)
+                        if (transition.match == Match.None)
                         {
                             lambda = true;
                         }
 
-                        DoAction(States[state][s + 2], ch);
+                        DoAction(transition.action, ch);
 
-                        state = States[state][s + 1];
+                        state = transition.nextState;
                         break;
                     }
                 }
 
                 if (!matched)
                 {
-                    throw new CsvParseException("Unexpected character at state " + StateNames[state] + ": <<<" + (char)ch + ">>>");
+                    throw new CsvParseException("Unexpected character at state " + StateNames[(int)state] + ": <<<" + (char)ch + ">>>");
                 }
             }
             while (state < finalSate);
@@ -340,22 +349,22 @@ namespace Kajabity.Tools.Csv
         /// <param name="match">The number of the MATCH_* test to try.</param>
         /// <param name="ch">The character to test.</param>
         /// <returns></returns>
-        private bool Matches(int match, int ch)
+        private bool Matches(Match match, int ch)
         {
             ExtraLinefeedChar = 0;
 
             switch (match)
             {
-                case MATCH_none:
+                case Match.None:
                     return true;
 
-                case MATCH_Separator:
+                case Match.Separator:
                     return ch == Separator;
 
-                case MATCH_EOF:
+                case Match.EOF:
                     return ch == -1;
 
-                case MATCH_LineFeed:
+                case Match.LineFeed:
                     if (ch == '\r')
                     {
                         if (PeekChar() == '\n')
@@ -371,13 +380,13 @@ namespace Kajabity.Tools.Csv
                     }
                     return false;
 
-                case MATCH_DoubleQuote:
+                case Match.DoubleQuote:
                     return ch == Quote;
 
-                case MATCH_WhiteSpace:
+                case Match.WhiteSpace:
                     return ch == ' ' || ch == '\t' || ch == '\v';
 
-                case MATCH_Any:
+                case Match.Any:
                     return true;
 
                 default:  // Allows the match char to be the 'MATCH' parameter.
@@ -391,20 +400,20 @@ namespace Kajabity.Tools.Csv
         /// </summary>
         /// <param name="action">The number of the action to perform.</param>
         /// <param name="ch">The character matched in the state.</param>
-        private void DoAction(int action, int ch)
+        private void DoAction(Action action, int ch)
         {
             switch (action)
             {
-                case ACTION_none:
+                case Action.None:
                     break;
 
-                case ACTION_SaveField:  // Append the field to the fieldList as a String.
+                case Action.SaveField:  // Append the field to the fieldList as a String.
                                         //Debug.WriteLine( "ACTION_SaveField: \"" + fieldBuilder.ToString() + "\"" );
                     fieldList.Add(fieldBuilder.ToString());
                     fieldBuilder.Length = 0;
                     break;
 
-                case ACTION_SaveLine:   // Append the line to the rowList as an array of strings.
+                case Action.SaveLine:   // Append the line to the rowList as an array of strings.
                                         //Debug.Write( "ACTION_SaveLine: \"" + fieldBuilder.ToString() + "\"" );
                     fieldList.Add(fieldBuilder.ToString());
                     fieldBuilder.Length = 0;
@@ -414,11 +423,11 @@ namespace Kajabity.Tools.Csv
                     fieldList.Clear();
                     break;
 
-                case ACTION_AppendToField:
+                case Action.AppendToField:
                     fieldBuilder.Append((char)ch);
                     break;
 
-                case ACTION_AppendLineFeedToField:
+                case Action.AppendLineFeedToField:
                     fieldBuilder.Append((char)ch).Append((char)ExtraLinefeedChar);
                     break;
             }
