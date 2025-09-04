@@ -44,10 +44,8 @@ namespace Kajabity.Tools.Csv
         [OneTimeSetUp]
         public void SetUp()
         {
-            Assembly assem = Assembly.GetExecutingAssembly();
-            string assemblyPath = Directory.GetParent(assem.Location).FullName;
-            string testDataDirectory = Path.Combine(assemblyPath, "Test Data");
-            string outputDirectory = Path.Combine(assemblyPath, "Output");
+            string testDataDirectory = Path.Combine(AppContext.BaseDirectory, "TestData");
+            string outputDirectory = Path.GetTempPath();
 
             CsvTestDataDirectory = Path.Combine(testDataDirectory, "Csv");
             CsvOutputDirectory = Path.Combine(outputDirectory, "Csv");

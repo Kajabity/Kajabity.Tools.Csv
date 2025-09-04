@@ -42,7 +42,7 @@ namespace Kajabity.Tools.Csv
 
         private string MixedTestFile;
 
-        // TODO: test reading error scenarios, 
+        // TODO: test reading error scenarios,
         private string UnixLineEndsTestFile;
         private string ErrorQuotesTestFile;
         // TODO: test with alternate separator
@@ -62,10 +62,8 @@ namespace Kajabity.Tools.Csv
         [OneTimeSetUp]
         public void SetUp()
         {
-            Assembly assem = Assembly.GetExecutingAssembly();
-            string assemblyPath = Directory.GetParent(assem.Location).FullName;
-            string testDataDirectory = Path.Combine(assemblyPath, "Test Data");
-            string outputDirectory = Path.Combine(assemblyPath, "Output");
+            string testDataDirectory = Path.Combine(AppContext.BaseDirectory, "TestData");
+            string outputDirectory = Path.GetTempPath();
 
             //Directory.CreateDirectory( OutputDirectory );
 

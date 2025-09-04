@@ -1,0 +1,28 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^tests/Kajabity\.Tools\.Csv\.Tests/TestData/
+      - id: end-of-file-fixer
+        exclude: ^tests/Kajabity\.Tools\.Csv\.Tests/TestData/
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+      - id: detect-private-key
+
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.27.3
+    hooks:
+      - id: check-github-workflows
+
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.32.0
+    hooks:
+      - id: markdownlint
+        args: [--fix]
+
+  - repo: https://github.com/zricethezav/gitleaks
+    rev: v8.18.1
+    hooks:
+      - id: gitleaks

@@ -137,8 +137,8 @@ namespace Kajabity.Tools.Csv
 
         /// <summary>
         /// Construct a new instance to output CSV data to the stream provided using
-        /// the US-ASCII format (code page 20127) as defined in RFC 4180 
-        /// (http://tools.ietf.org/html/rfc4180 Common Format and MIME Type for 
+        /// the US-ASCII format (code page 20127) as defined in RFC 4180
+        /// (http://tools.ietf.org/html/rfc4180 Common Format and MIME Type for
         /// Comma-Separated Values (CSV) Files).
         /// </summary>
         /// <param name="stream">CSV data will be written to this stream.</param>

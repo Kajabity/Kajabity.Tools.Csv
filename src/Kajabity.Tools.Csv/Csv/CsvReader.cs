@@ -25,17 +25,17 @@ using System.Text;
 namespace Kajabity.Tools.Csv
 {
     /// <summary>
-    /// This class reads CSV formatted data from an input stream.  It can read individual fields in a row, 
-    /// a full row or the whole file.  Data can only be read once - so if the first field in a row is read, 
+    /// This class reads CSV formatted data from an input stream.  It can read individual fields in a row,
+    /// a full row or the whole file.  Data can only be read once - so if the first field in a row is read,
     /// it won't be part of the row if that is read next.
-    /// 
-    /// The term Row is used rather than line because quoted fields can include line breaks (real, not 
+    ///
+    /// The term Row is used rather than line because quoted fields can include line breaks (real, not
     /// escaped) so that one row may be spread across multiple lines.
     /// </summary>
     public class CsvReader
     {
         //	---------------------------------------------------------------------
-        #region The State Machine (ATNP)        
+        #region The State Machine (ATNP)
         //	---------------------------------------------------------------------
 
         //	All the states.
@@ -73,7 +73,7 @@ namespace Kajabity.Tools.Csv
         private const int ACTION_AppendLineFeedToField = 4;
 
         /// <summary>
-        /// The State Machine - an array of states, each an array of transitions, and each of those 
+        /// The State Machine - an array of states, each an array of transitions, and each of those
         /// an array of integers grouped in threes - { match condition, next state, action to perform }.
         /// </summary>
         private static readonly int[][] States =
@@ -128,7 +128,7 @@ namespace Kajabity.Tools.Csv
 
         /// <summary>
         /// The size of the buffer used to read the input data.
-        /// </summary>	
+        /// </summary>
         private const int BufferSize = 1000;
 
         //	---------------------------------------------------------------------
@@ -144,13 +144,13 @@ namespace Kajabity.Tools.Csv
         //	---------------------------------------------------------------------
 
         /// <summary>
-        /// Gets or sets the separator character used in the CSV stream - 
+        /// Gets or sets the separator character used in the CSV stream -
         /// default value is a comma (',').
         /// </summary>
         public int Separator = CsvConstants.DEFAULT_SEPARATOR_CHAR;
 
         /// <summary>
-        /// Gets or sets the quote character used in the CSV stream - default 
+        /// Gets or sets the quote character used in the CSV stream - default
         /// value is a double quote ('"').
         /// </summary>
         public int Quote = CsvConstants.DEFAULT_QUOTE_CHAR;
@@ -278,12 +278,12 @@ namespace Kajabity.Tools.Csv
         }
 
         /// <summary>
-        /// Parse the input CSV stream from the current position until the final state is 
+        /// Parse the input CSV stream from the current position until the final state is
         /// reached.  Intended to allow parsing to End of Field, End of Record or End of File.
         /// </summary>
-        /// <param name="finalSate">Specify where the parser should stop (or pause) 
+        /// <param name="finalSate">Specify where the parser should stop (or pause)
         /// by indicating which state to finish on.</param>
-        /// <exception cref="T:CsvParseException">Thrown when an unexpected/invalid character 
+        /// <exception cref="T:CsvParseException">Thrown when an unexpected/invalid character
         /// is encountered in the input stream.</exception>
         private void Parse(int finalSate)
         {
@@ -440,7 +440,7 @@ namespace Kajabity.Tools.Csv
         }
 
         /// <summary>
-        /// Retuns but doesn't remove the next character from the stream.  
+        /// Retuns but doesn't remove the next character from the stream.
         /// This character will be returned every time this method is called until it is returned by NextChar().
         /// </summary>
         /// <returns>The next character from the stream.</returns>

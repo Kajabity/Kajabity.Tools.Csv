@@ -10,8 +10,8 @@ separate repository to reduce unnecessary code bloat.  In particular, it removes
 
 This repository contains several sub-projects:
 
--	**Kajabity.Tools.Csv** - a DLL project providing the CSV classes for .NET projects.
--	**Kajabity.Tools.Csv.Test** - NUnit tests for the Kajabity.Tools.Csv classes.
+- **Kajabity.Tools.Csv** - a DLL project providing the CSV classes for .NET projects.
+- **Kajabity.Tools.Csv.Test** - NUnit tests for the Kajabity.Tools.Csv classes.
 
 See the Releases section on GitHub to download copies of code, DLL exe's and NuGets.
 
