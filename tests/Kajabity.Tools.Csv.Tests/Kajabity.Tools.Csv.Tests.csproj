@@ -26,4 +26,8 @@
     <ProjectReference Include="..\..\src\Kajabity.Tools.Csv\Kajabity.Tools.Csv.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Csv\" />
+  </ItemGroup>
+
 </Project>

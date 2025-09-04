@@ -18,13 +18,7 @@
  * http://www.kajabity.com
  */
 
-using Kajabity.Tools.Test;
-using NUnit.Framework;
-using System;
-using System.IO;
-using System.Reflection;
-
-namespace Kajabity.Tools.Csv
+namespace Kajabity.Tools.Csv.Tests
 {
     [TestFixture]
     public class CsvWriterTest : KajabityToolsTest
@@ -34,18 +28,18 @@ namespace Kajabity.Tools.Csv
         /// <summary>
         /// The directory where a copy of the CSV test data input files are placed.
         /// </summary>
-        protected static string CsvTestDataDirectory;
+        private static string CsvTestDataDirectory;
 
         /// <summary>
         /// The directory where a copy of the CSV test data input files are placed.
         /// </summary>
-        protected static string CsvOutputDirectory;
+        private static string CsvOutputDirectory;
 
         [OneTimeSetUp]
         public void SetUp()
         {
-            string testDataDirectory = Path.Combine(AppContext.BaseDirectory, "TestData");
-            string outputDirectory = Path.GetTempPath();
+            var testDataDirectory = Path.Combine(AppContext.BaseDirectory, "TestData");
+            var outputDirectory = Path.GetTempPath();
 
             CsvTestDataDirectory = Path.Combine(testDataDirectory, "Csv");
             CsvOutputDirectory = Path.Combine(outputDirectory, "Csv");
@@ -66,21 +60,21 @@ namespace Kajabity.Tools.Csv
         [Test]
         public void TestCsvWriter()
         {
-            string filename = MixedTestFile;
+            var filename = MixedTestFile;
             FileStream inStream = null;
             FileStream outStream = null;
             try
             {
                 Console.WriteLine("Loading " + filename);
                 inStream = File.OpenRead(filename);
-                CsvReader reader = new CsvReader(inStream);
+                var reader = new CsvReader(inStream);
                 string[][] records = reader.ReadAll();
 
-                string outName = Path.Combine(CsvOutputDirectory, "test-writer.csv");
+                var outName = Path.Combine(CsvOutputDirectory, "test-writer.csv");
                 outStream = File.OpenWrite(outName);
                 outStream.SetLength(0L);
 
-                CsvWriter writer = new CsvWriter(outStream);
+                var writer = new CsvWriter(outStream);
                 //writer.QuoteLimit = -1;
 
                 writer.WriteAll(records);
@@ -107,8 +101,8 @@ namespace Kajabity.Tools.Csv
         [Test]
         public void TestWriteRecord()
         {
-            string filename = Path.Combine(CsvOutputDirectory, "test-write-record.csv");
-            string[] record = new string[] { "AAAA", "BBBB", "CCCC" };
+            var filename = Path.Combine(CsvOutputDirectory, "test-write-record.csv");
+            var record = new string[] { "AAAA", "BBBB", "CCCC" };
             const int lenRecord = 14; // Strings, commas.
 
             Stream stream = null;
@@ -120,14 +114,14 @@ namespace Kajabity.Tools.Csv
                 stream.Close();
 
                 //	Check it's empty.
-                FileInfo info = new FileInfo(filename);
+                var info = new FileInfo(filename);
                 Assert.AreEqual(0, info.Length, "File length not zero.");
 
                 //  Open for append
                 stream = File.OpenWrite(filename);
 
                 //	Append a record.
-                CsvWriter writer = new CsvWriter(stream);
+                var writer = new CsvWriter(stream);
                 writer.WriteRecord(record);
                 stream.Flush();
                 stream.Close();
@@ -153,8 +147,8 @@ namespace Kajabity.Tools.Csv
         [Test]
         public void TestWriteAlternateSeparator()
         {
-            string filename = Path.Combine(CsvOutputDirectory, "test-write-alternate-separator.csv");
-            string[] record = new string[] { "AA,AA original separator", "BB|BB new separator", "CCCC" };
+            var filename = Path.Combine(CsvOutputDirectory, "test-write-alternate-separator.csv");
+            var record = new string[] { "AA,AA original separator", "BB|BB new separator", "CCCC" };
 
             Stream stream = null;
             try
@@ -166,7 +160,7 @@ namespace Kajabity.Tools.Csv
                 stream.Close();
 
                 //	Check it's empty.
-                FileInfo info = new FileInfo(filename);
+                var info = new FileInfo(filename);
                 Assert.AreEqual(0, info.Length, "File length not zero.");
 
                 //  Open for append
@@ -174,7 +168,7 @@ namespace Kajabity.Tools.Csv
                 stream = File.OpenWrite(filename);
 
                 //	Append a record.
-                CsvWriter writer = new CsvWriter(stream);
+                var writer = new CsvWriter(stream);
                 writer.Separator = '|';
                 writer.WriteRecord(record);
                 stream.Flush();
@@ -182,7 +176,7 @@ namespace Kajabity.Tools.Csv
 
                 Console.WriteLine("Loading " + filename);
                 stream = File.OpenRead(filename);
-                CsvReader reader = new CsvReader(stream);
+                var reader = new CsvReader(stream);
                 reader.Separator = '|';
                 string[][] records = reader.ReadAll();
 
@@ -192,7 +186,7 @@ namespace Kajabity.Tools.Csv
 
                 Assert.AreEqual(record.Length, records[0].Length, "Should be " + record.Length + " fields in record.");
 
-                for (int fieldNo = 0; fieldNo < record.Length; fieldNo++)
+                for (var fieldNo = 0; fieldNo < record.Length; fieldNo++)
                 {
                     Assert.AreEqual(record[fieldNo], records[0][fieldNo], "Field " + record.Length + " Should be " + record[fieldNo]);
                 }
@@ -213,13 +207,13 @@ namespace Kajabity.Tools.Csv
         [Test]
         public void TestWriteAlternateQuote()
         {
-            string filename = Path.Combine(CsvOutputDirectory, "test-write-alternate-quote.csv");
+            var filename = Path.Combine(CsvOutputDirectory, "test-write-alternate-quote.csv");
             string[][] recordsOut =
-            {
-                new string[] { "aaa", "bb*b", "ccc" },
-                new string[] { "", "new" + Environment.NewLine + "line", "quoted" },
-                new string[] { "with", "\"other\"", "quo\"\"te" }
-            };
+            [
+                ["aaa", "bb*b", "ccc"],
+                ["", "new" + Environment.NewLine + "line", "quoted"],
+                ["with", "\"other\"", "quo\"\"te"]
+            ];
 
             Stream stream = null;
             try
@@ -230,7 +224,7 @@ namespace Kajabity.Tools.Csv
                 stream.SetLength(0);
 
                 //	Append the data.
-                CsvWriter writer = new CsvWriter(stream);
+                var writer = new CsvWriter(stream);
                 writer.Quote = '*';
                 writer.QuoteLimit = -1;
                 writer.WriteAll(recordsOut);
@@ -239,19 +233,19 @@ namespace Kajabity.Tools.Csv
 
                 Console.WriteLine("Loading " + filename);
                 stream = File.OpenRead(filename);
-                CsvReader reader = new CsvReader(stream);
+                var reader = new CsvReader(stream);
                 reader.Quote = '*';
                 string[][] recordsIn = reader.ReadAll();
 
-                int line = 0;
-                foreach (string[] record in recordsIn)
+                var line = 0;
+                foreach (var record in recordsIn)
                 {
                     Console.WriteLine(++line + ":" + ToString(record));
                 }
 
                 Assert.IsTrue(recordsIn.Length == 3, "Wrong number of records in " + filename);
 
-                int index = 0;
+                var index = 0;
                 Assert.IsTrue(recordsIn[index].Length == 3, "Wrong number of items on record " + (index + 1));
                 Assert.IsTrue(CompareStringArray(recordsOut[index], recordsIn[index]), "contents of record " + (index + 1));
 

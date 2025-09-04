@@ -21,7 +21,7 @@
 using System.Text;
 using NUnit.Framework;
 
-namespace Kajabity.Tools.Test
+namespace Kajabity.Tools.Csv.Tests
 {
     /// <summary>
     /// A base test class providing utility methods.
@@ -36,12 +36,12 @@ namespace Kajabity.Tools.Test
         /// <returns>a string representation of the string array</returns>
         public static string ToString( string[] strings )
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             builder.Append( "{" );
 
             if( strings != null )
             {
-                for( int i = 0; i < strings.Length; i++ )
+                for( var i = 0; i < strings.Length; i++ )
                 {
                     if( i > 0 )
                     {
@@ -90,7 +90,7 @@ namespace Kajabity.Tools.Test
                 return false;
             }
 
-            for( int i = 0; i < a.Length; i++ )
+            for( var i = 0; i < a.Length; i++ )
             {
                 if( !a[ i ].Equals( b[ i ] ) )
                 {
