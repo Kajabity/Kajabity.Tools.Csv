@@ -23,184 +23,108 @@ namespace Kajabity.Tools.Csv.Tests
     [TestFixture]
     public class CsvWriterTest : KajabityToolsTest
     {
-        private string MixedTestFile;
-
-        /// <summary>
-        /// The directory where a copy of the CSV test data input files are placed.
-        /// </summary>
-        private static string CsvTestDataDirectory;
-
-        /// <summary>
-        /// The directory where a copy of the CSV test data input files are placed.
-        /// </summary>
-        private static string CsvOutputDirectory;
+        private static readonly string CsvTestDataDirectory = Path.Combine(AppContext.BaseDirectory, "TestData", "Csv");
+        private static readonly string CsvOutputDirectory = Path.GetTempPath();
 
         [OneTimeSetUp]
         public void SetUp()
         {
-            var testDataDirectory = Path.Combine(AppContext.BaseDirectory, "TestData");
-            var outputDirectory = Path.GetTempPath();
-
-            CsvTestDataDirectory = Path.Combine(testDataDirectory, "Csv");
-            CsvOutputDirectory = Path.Combine(outputDirectory, "Csv");
+            TestContext.WriteLine($"Starting test: {TestContext.CurrentContext.Test.Name}");
 
             if (!Directory.Exists(CsvOutputDirectory))
             {
-                Console.WriteLine("Creating CSV output directory :" + CsvOutputDirectory);
+                TestContext.WriteLine("Creating CSV output directory :" + CsvOutputDirectory);
                 Directory.CreateDirectory(CsvOutputDirectory);
             }
-
-            MixedTestFile = Path.Combine(CsvTestDataDirectory, "mixed.csv");
         }
-
-        //  ---------------------------------------------------------------------
-        //  Test CSV Reader
-        //  ---------------------------------------------------------------------
 
         [Test]
         public void TestCsvWriter()
         {
-            var filename = MixedTestFile;
-            FileStream inStream = null;
-            FileStream outStream = null;
-            try
-            {
-                Console.WriteLine("Loading " + filename);
-                inStream = File.OpenRead(filename);
-                var reader = new CsvReader(inStream);
-                string[][] records = reader.ReadAll();
+            var filename = Path.Combine(CsvTestDataDirectory, "mixed.csv");
+            TestContext.WriteLine("Loading " + filename);
+            using var inStream = File.OpenRead(filename);
+            var reader = new CsvReader(inStream);
+            string[][] records = reader.ReadAll();
 
-                var outName = Path.Combine(CsvOutputDirectory, "test-writer.csv");
-                outStream = File.OpenWrite(outName);
-                outStream.SetLength(0L);
+            var outName = Path.Combine(CsvOutputDirectory, "test-writer.csv");
+            using var outStream = File.OpenWrite(outName);
+            outStream.SetLength(0L);
 
-                var writer = new CsvWriter(outStream);
-                //writer.QuoteLimit = -1;
-
-                writer.WriteAll(records);
-                outStream.Flush();
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail(ex.Message);
-            }
-            finally
-            {
-                if (inStream != null)
-                {
-                    inStream.Close();
-                }
-
-                if (outStream != null)
-                {
-                    outStream.Close();
-                }
-            }
+            var writer = new CsvWriter(outStream);
+            writer.WriteAll(records);
+            outStream.Flush();
         }
 
         [Test]
         public void TestWriteRecord()
         {
             var filename = Path.Combine(CsvOutputDirectory, "test-write-record.csv");
-            var record = new string[] { "AAAA", "BBBB", "CCCC" };
+            var record = new[] { "AAAA", "BBBB", "CCCC" };
             const int lenRecord = 14; // Strings, commas.
 
-            Stream stream = null;
-            try
+            // Create the temp file (or overwrite if already there).
+            using (var stream = File.Open(filename, FileMode.OpenOrCreate, FileAccess.ReadWrite))
             {
-                //	Create the temp file (or overwrite if already there).
-                stream = File.Open(filename, FileMode.OpenOrCreate, FileAccess.ReadWrite);
                 stream.SetLength(0);
-                stream.Close();
+            }
 
-                //	Check it's empty.
-                var info = new FileInfo(filename);
-                Assert.AreEqual(0, info.Length, "File length not zero.");
+            // Check it's empty.
+            var info = new FileInfo(filename);
+            Assert.AreEqual(0, info.Length, "File length not zero.");
 
-                //  Open for append
-                stream = File.OpenWrite(filename);
-
-                //	Append a record.
+            // Open for append
+            using (var stream = File.OpenWrite(filename))
+            {
                 var writer = new CsvWriter(stream);
                 writer.WriteRecord(record);
                 stream.Flush();
-                stream.Close();
+            }
 
-                //	Check it's not empty.
-                info = new FileInfo(filename);
-                Assert.AreEqual(lenRecord, info.Length, "File length not increased.");
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail(ex.Message);
-            }
-            finally
-            {
-                if (stream != null)
-                {
-                    stream.Close();
-                    //File.Delete( filename );  // Keep it for debugging.
-                }
-            }
+            // Check it's not empty.
+            info = new FileInfo(filename);
+            Assert.AreEqual(lenRecord, info.Length, "File length not increased.");
         }
 
         [Test]
         public void TestWriteAlternateSeparator()
         {
             var filename = Path.Combine(CsvOutputDirectory, "test-write-alternate-separator.csv");
-            var record = new string[] { "AA,AA original separator", "BB|BB new separator", "CCCC" };
+            var record = new[] { "AA,AA original separator", "BB|BB new separator", "CCCC" };
 
-            Stream stream = null;
-            try
+            TestContext.WriteLine("Creating empty " + filename);
+            using (var stream = File.Open(filename, FileMode.OpenOrCreate, FileAccess.ReadWrite))
             {
-                Console.WriteLine("Creating empty " + filename);
-                //	Create the temp file (or overwrite if already there).
-                stream = File.Open(filename, FileMode.OpenOrCreate, FileAccess.ReadWrite);
                 stream.SetLength(0);
-                stream.Close();
+            }
 
-                //	Check it's empty.
-                var info = new FileInfo(filename);
-                Assert.AreEqual(0, info.Length, "File length not zero.");
+            // Check it's empty.
+            var info = new FileInfo(filename);
+            Assert.AreEqual(0, info.Length, "File length not zero.");
 
-                //  Open for append
-                Console.WriteLine("Writing " + filename);
-                stream = File.OpenWrite(filename);
-
-                //	Append a record.
+            // Open for append
+            TestContext.WriteLine("Writing " + filename);
+            using (var stream = File.OpenWrite(filename))
+            {
                 var writer = new CsvWriter(stream);
                 writer.Separator = '|';
                 writer.WriteRecord(record);
                 stream.Flush();
-                stream.Close();
-
-                Console.WriteLine("Loading " + filename);
-                stream = File.OpenRead(filename);
-                var reader = new CsvReader(stream);
-                reader.Separator = '|';
-                string[][] records = reader.ReadAll();
-
-                Assert.AreEqual(1, records.Length, "Should only be one record.");
-
-                Console.WriteLine("Read :" + ToString(records[0]));
-
-                Assert.AreEqual(record.Length, records[0].Length, "Should be " + record.Length + " fields in record.");
-
-                for (var fieldNo = 0; fieldNo < record.Length; fieldNo++)
-                {
-                    Assert.AreEqual(record[fieldNo], records[0][fieldNo], "Field " + record.Length + " Should be " + record[fieldNo]);
-                }
             }
-            catch (Exception ex)
+
+            TestContext.WriteLine("Loading " + filename);
+            using var readStream = File.OpenRead(filename);
+            var reader = new CsvReader(readStream);
+            reader.Separator = '|';
+            string[][] records = reader.ReadAll();
+
+            Assert.AreEqual(1, records.Length, "Should only be one record.");
+            TestContext.WriteLine("Read :" + ToString(records[0]));
+            Assert.AreEqual(record.Length, records[0].Length, "Should be " + record.Length + " fields in record.");
+
+            for (var fieldNo = 0; fieldNo < record.Length; fieldNo++)
             {
-                Assert.Fail(ex.Message);
-            }
-            finally
-            {
-                if (stream != null)
-                {
-                    stream.Close();
-                }
+                Assert.AreEqual(record[fieldNo], records[0][fieldNo], "Field " + record.Length + " Should be " + record[fieldNo]);
             }
         }
 
@@ -215,59 +139,42 @@ namespace Kajabity.Tools.Csv.Tests
                 ["with", "\"other\"", "quo\"\"te"]
             ];
 
-            Stream stream = null;
-            try
+            TestContext.WriteLine("Creating " + filename);
+            using (var stream = File.Open(filename, FileMode.OpenOrCreate, FileAccess.ReadWrite))
             {
-                Console.WriteLine("Creating " + filename);
-                //	Create the temp file (or overwrite if already there).
-                stream = File.Open(filename, FileMode.OpenOrCreate, FileAccess.ReadWrite);
                 stream.SetLength(0);
-
-                //	Append the data.
                 var writer = new CsvWriter(stream);
                 writer.Quote = '*';
                 writer.QuoteLimit = -1;
                 writer.WriteAll(recordsOut);
                 stream.Flush();
-                stream.Close();
-
-                Console.WriteLine("Loading " + filename);
-                stream = File.OpenRead(filename);
-                var reader = new CsvReader(stream);
-                reader.Quote = '*';
-                string[][] recordsIn = reader.ReadAll();
-
-                var line = 0;
-                foreach (var record in recordsIn)
-                {
-                    Console.WriteLine(++line + ":" + ToString(record));
-                }
-
-                Assert.IsTrue(recordsIn.Length == 3, "Wrong number of records in " + filename);
-
-                var index = 0;
-                Assert.IsTrue(recordsIn[index].Length == 3, "Wrong number of items on record " + (index + 1));
-                Assert.IsTrue(CompareStringArray(recordsOut[index], recordsIn[index]), "contents of record " + (index + 1));
-
-                index++;
-                Assert.IsTrue(recordsIn[index].Length == 3, "Wrong number of items on record " + (index + 1));
-                Assert.IsTrue(CompareStringArray(recordsOut[index], recordsIn[index]), "contents of record " + (index + 1));
-
-                index++;
-                Assert.IsTrue(recordsIn[index].Length == 3, "Wrong number of items on record " + (index + 1));
-                Assert.IsTrue(CompareStringArray(recordsOut[index], recordsIn[index]), "contents of record " + (index + 1));
             }
-            catch (Exception ex)
+
+            TestContext.WriteLine("Loading " + filename);
+            using var readStream = File.OpenRead(filename);
+            var reader = new CsvReader(readStream);
+            reader.Quote = '*';
+            string[][] recordsIn = reader.ReadAll();
+
+            var line = 0;
+            foreach (var record in recordsIn)
             {
-                Assert.Fail(ex.Message);
+                TestContext.WriteLine(++line + ":" + ToString(record));
             }
-            finally
-            {
-                if (stream != null)
-                {
-                    stream.Close();
-                }
-            }
+
+            Assert.IsTrue(recordsIn.Length == 3, "Wrong number of records in " + filename);
+
+            var index = 0;
+            Assert.IsTrue(recordsIn[index].Length == 3, "Wrong number of items on record " + (index + 1));
+            Assert.IsTrue(CompareStringArray(recordsOut[index], recordsIn[index]), "contents of record " + (index + 1));
+
+            index++;
+            Assert.IsTrue(recordsIn[index].Length == 3, "Wrong number of items on record " + (index + 1));
+            Assert.IsTrue(CompareStringArray(recordsOut[index], recordsIn[index]), "contents of record " + (index + 1));
+
+            index++;
+            Assert.IsTrue(recordsIn[index].Length == 3, "Wrong number of items on record " + (index + 1));
+            Assert.IsTrue(CompareStringArray(recordsOut[index], recordsIn[index]), "contents of record " + (index + 1));
         }
     }
 }

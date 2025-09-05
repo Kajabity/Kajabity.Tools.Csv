@@ -23,8 +23,8 @@ namespace Kajabity.Tools.Csv.Tests
     [TestFixture]
     public class CsvReaderTest : KajabityToolsTest
     {
-        protected static string CsvTestDataDirectory = Path.Combine(AppContext.BaseDirectory, "TestData", "Csv");
-        protected static string CsvOutputDirectory = Path.Combine(Path.GetTempPath(), "Csv");
+        private static readonly string CsvTestDataDirectory = Path.Combine(AppContext.BaseDirectory, "TestData", "Csv");
+        private static readonly string CsvOutputDirectory = Path.GetTempPath();
 
         private readonly string EmptyTestFile = Path.Combine(CsvTestDataDirectory, "empty.csv");
         private readonly string SimpleTestFile = Path.Combine(CsvTestDataDirectory, "simple.csv");
@@ -45,15 +45,21 @@ namespace Kajabity.Tools.Csv.Tests
         {
             if (!Directory.Exists(CsvOutputDirectory))
             {
-                Console.WriteLine("Creating CSV output directory :" + CsvOutputDirectory);
+                TestContext.WriteLine("Creating CSV output directory :" + CsvOutputDirectory);
                 Directory.CreateDirectory(CsvOutputDirectory);
             }
+        }
+
+        [SetUp]
+        public void LogTestStart()
+        {
+            TestContext.WriteLine($"Starting test: {TestContext.CurrentContext.Test.Name}");
         }
 
         [Test]
         public void TestCsvEmptyFile()
         {
-            Console.WriteLine("Loading " + EmptyTestFile);
+            TestContext.WriteLine ("Loading " + EmptyTestFile);
             using var fileStream = File.OpenRead(EmptyTestFile);
             var reader = new CsvReader(fileStream);
 
@@ -62,7 +68,7 @@ namespace Kajabity.Tools.Csv.Tests
 
             foreach (var record in records)
             {
-                Console.WriteLine(++line + ":" + ToString(record));
+                TestContext.WriteLine (++line + ":" + ToString(record));
             }
 
             Assert.That(records.Length, Is.EqualTo(1), "Wrong number of record in " + EmptyTestFile);
@@ -73,7 +79,7 @@ namespace Kajabity.Tools.Csv.Tests
         [Test]
         public void TestCsvSimpleFile()
         {
-            Console.WriteLine("Loading " + SimpleTestFile);
+            TestContext.WriteLine ("Loading " + SimpleTestFile);
             using var fileStream = File.OpenRead(SimpleTestFile);
             var reader = new CsvReader(fileStream);
 
@@ -82,7 +88,7 @@ namespace Kajabity.Tools.Csv.Tests
 
             foreach (var record in records)
             {
-                Console.WriteLine(++line + ":" + ToString(record));
+                TestContext.WriteLine (++line + ":" + ToString(record));
             }
 
             Assert.That(records.Length, Is.EqualTo(2), "Wrong number of records in " + SimpleTestFile);
@@ -93,7 +99,7 @@ namespace Kajabity.Tools.Csv.Tests
         [Test]
         public void TestCsvThreeBlankLinesFile()
         {
-            Console.WriteLine("Loading " + ThreeBlankLinesTestFile);
+            TestContext.WriteLine ("Loading " + ThreeBlankLinesTestFile);
             using var fileStream = File.OpenRead(ThreeBlankLinesTestFile);
             var reader = new CsvReader(fileStream);
 
@@ -102,7 +108,7 @@ namespace Kajabity.Tools.Csv.Tests
 
             foreach (var record in records)
             {
-                Console.WriteLine(++line + ":" + ToString(record));
+                TestContext.WriteLine (++line + ":" + ToString(record));
             }
 
             Assert.That(records.Length, Is.EqualTo(3), "Wrong number of records in " + ThreeBlankLinesTestFile);
@@ -117,7 +123,7 @@ namespace Kajabity.Tools.Csv.Tests
         [Test]
         public void TestCsvEmptyFieldFile()
         {
-            Console.WriteLine("Loading " + EmptyFieldTestFile);
+            TestContext.WriteLine ("Loading " + EmptyFieldTestFile);
             using var fileStream = File.OpenRead(EmptyFieldTestFile);
             var reader = new CsvReader(fileStream);
 
@@ -126,7 +132,7 @@ namespace Kajabity.Tools.Csv.Tests
 
             foreach (var record in records)
             {
-                Console.WriteLine(++line + ":" + ToString(record));
+                TestContext.WriteLine (++line + ":" + ToString(record));
             }
 
             Assert.That(records.Length, Is.EqualTo(4), "Wrong number of records in " + EmptyFieldTestFile);
@@ -151,7 +157,7 @@ namespace Kajabity.Tools.Csv.Tests
         [Test]
         public void TestCsvQuotedFile()
         {
-            Console.WriteLine("Loading " + QuotedTestFile);
+            TestContext.WriteLine ("Loading " + QuotedTestFile);
             using var fileStream = File.OpenRead(QuotedTestFile);
             var reader = new CsvReader(fileStream);
 
@@ -160,7 +166,7 @@ namespace Kajabity.Tools.Csv.Tests
 
             foreach (var record in records)
             {
-                Console.WriteLine(++line + ":" + ToString(record));
+                TestContext.WriteLine (++line + ":" + ToString(record));
             }
 
             Assert.That(records.Length, Is.EqualTo(2), "Wrong number of records in " + QuotedTestFile);
@@ -177,7 +183,7 @@ namespace Kajabity.Tools.Csv.Tests
         [Test]
         public void TestCsvQuotedLineBreaksFile()
         {
-            Console.WriteLine("Loading " + QuotedLineBreaksTestFile);
+            TestContext.WriteLine ("Loading " + QuotedLineBreaksTestFile);
             using var fileStream = File.OpenRead(QuotedLineBreaksTestFile);
             var reader = new CsvReader(fileStream);
 
@@ -186,7 +192,7 @@ namespace Kajabity.Tools.Csv.Tests
 
             foreach (var record in records)
             {
-                Console.WriteLine(++line + ":" + ToString(record));
+                TestContext.WriteLine (++line + ":" + ToString(record));
             }
 
             Assert.That(records.Length, Is.EqualTo(1), "Wrong number of records in " + QuotedLineBreaksTestFile);
@@ -211,7 +217,7 @@ namespace Kajabity.Tools.Csv.Tests
         [Test]
         public void TestCsvFieldNamesFile()
         {
-            Console.WriteLine("Loading " + FieldNamesTestFile);
+            TestContext.WriteLine ("Loading " + FieldNamesTestFile);
             using var fileStream = File.OpenRead(FieldNamesTestFile);
             var reader = new CsvReader(fileStream);
 
@@ -220,7 +226,7 @@ namespace Kajabity.Tools.Csv.Tests
 
             foreach (var record in records)
             {
-                Console.WriteLine(++line + ":" + ToString(record));
+                TestContext.WriteLine (++line + ":" + ToString(record));
             }
 
             Assert.That(records.Length, Is.EqualTo(3), "Wrong number of records in " + FieldNamesTestFile);
@@ -232,7 +238,7 @@ namespace Kajabity.Tools.Csv.Tests
         [Test]
         public void TestCsvSpacesFile()
         {
-            Console.WriteLine("Loading " + SpacesTestFile);
+            TestContext.WriteLine ("Loading " + SpacesTestFile);
             using var fileStream = File.OpenRead(SpacesTestFile);
             var reader = new CsvReader(fileStream);
 
@@ -241,7 +247,7 @@ namespace Kajabity.Tools.Csv.Tests
 
             foreach (var record in records)
             {
-                Console.WriteLine(++line + ":" + ToString(record));
+                TestContext.WriteLine (++line + ":" + ToString(record));
             }
 
             Assert.That(records.Length, Is.EqualTo(1), "Wrong number of records in " + SpacesTestFile);
@@ -251,7 +257,7 @@ namespace Kajabity.Tools.Csv.Tests
         [Test]
         public void TestCsvDifferentNumberFieldsFile()
         {
-            Console.WriteLine("Loading " + DifferentNumberFieldsTestFile);
+            TestContext.WriteLine ("Loading " + DifferentNumberFieldsTestFile);
             using var fileStream = File.OpenRead(DifferentNumberFieldsTestFile);
             var reader = new CsvReader(fileStream);
 
@@ -260,7 +266,7 @@ namespace Kajabity.Tools.Csv.Tests
 
             foreach (var record in records)
             {
-                Console.WriteLine(++line + ":" + ToString(record));
+                TestContext.WriteLine (++line + ":" + ToString(record));
             }
 
             Assert.That(records.Length, Is.EqualTo(4), "Wrong number of records in " + DifferentNumberFieldsTestFile);
@@ -285,7 +291,7 @@ namespace Kajabity.Tools.Csv.Tests
         [Test]
         public void TestCsvReadAll()
         {
-            Console.WriteLine("Loading " + MixedTestFile);
+            TestContext.WriteLine ("Loading " + MixedTestFile);
             using var fileStream = File.OpenRead(MixedTestFile);
             var reader = new CsvReader(fileStream);
 
@@ -294,35 +300,33 @@ namespace Kajabity.Tools.Csv.Tests
 
             foreach (var record in records)
             {
-                Console.WriteLine(++line + ":" + ToString(record));
+                TestContext.WriteLine (++line + ":" + ToString(record));
             }
         }
 
         [Test]
         public void TestCsvReadFieldAndRecord()
         {
-            Console.WriteLine("Loading " + MixedTestFile);
+            TestContext.WriteLine ("Loading " + MixedTestFile);
             using var fileStream = File.OpenRead(MixedTestFile);
             var reader = new CsvReader(fileStream);
 
-            Console.WriteLine("Line 1, Field 1: \"" + reader.ReadField() + "\"");
-
-            Console.WriteLine("Rest of Line 1: \"" + ToString(reader.ReadRecord()) + "\"");
-
-            Console.WriteLine("Rest of File: ");
+            TestContext.WriteLine ("Line 1, Field 1: \"" + reader.ReadField() + "\"");
+            TestContext.WriteLine ("Rest of Line 1: \"" + ToString(reader.ReadRecord()) + "\"");
+            TestContext.WriteLine ("Rest of File: ");
 
             string[][] records = reader.ReadAll();
-            var line = 0;
+            var line = 1;
             foreach (var record in records)
             {
-                Console.WriteLine(++line + ":" + ToString(record));
+                TestContext.WriteLine (++line + ":" + ToString(record));
             }
         }
 
         [Test]
         public void TestCsvDifferentQuotesFile()
         {
-            Console.WriteLine("Loading " + DifferentQuotesFile);
+            TestContext.WriteLine ("Loading " + DifferentQuotesFile);
             using var fileStream = File.OpenRead(DifferentQuotesFile);
             var reader = new CsvReader(fileStream);
 
@@ -332,7 +336,7 @@ namespace Kajabity.Tools.Csv.Tests
 
             foreach (var record in records)
             {
-                Console.WriteLine(++line + ":" + ToString(record));
+                TestContext.WriteLine (++line + ":" + ToString(record));
             }
 
             Assert.That(records.Length, Is.EqualTo(3), "Wrong number of records in " + DifferentQuotesFile);
