@@ -31,4 +31,7 @@
           run: dotnet build --configuration Release --no-restore
 
         - name: Run tests
-          run: dotnet test -v diag
+          run: dotnet test --no-build --verbosity normal
+
+        - name: Check vulnerable packages
+          run: dotnet list package --vulnerable --include-transitive
