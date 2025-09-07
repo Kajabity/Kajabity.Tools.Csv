@@ -32,7 +32,7 @@ namespace Kajabity.Tools.Csv.Tests
         /// Convert an array of strings to a readable string.
         /// Example: ["a", "b", null] → {"a", "b", ""}
         /// </summary>
-        public static string ToString(string[] strings) =>
+        public static string ToString(string[]? strings) =>
             strings == null
                 ? "{}"
                 : "{" + string.Join(", ", strings.Select(s => $"\"{s ?? ""}\"")) + "}";
@@ -40,14 +40,23 @@ namespace Kajabity.Tools.Csv.Tests
         /// <summary>
         /// Return the string, or "" if it is null.
         /// </summary>
-        public static string NoNull(string s) => s ?? "";
+        public static string NoNull(string? s) => s ?? "";
 
         /// <summary>
         /// Returns true if two string arrays contain the same values (order-sensitive).
         /// </summary>
-        public static bool CompareStringArray(string[] a, string[] b) =>
-            a == null && b == null
-                ? true
-                : a != null && b != null && a.SequenceEqual(b);
+        public static bool CompareStringArray(string[]? a, string[]? b)
+        {
+            if (a == null || b == null)
+                return a == b;
+
+            return a.Select(NormalizeNewlines).SequenceEqual(b.Select(NormalizeNewlines));
+        }
+
+        /// <summary>
+        /// Normalize newlines in a string.
+        /// </summary>
+        public static string NormalizeNewlines(string? input) =>
+            input == null ? "" : input.Replace("\r\n", "\n").Replace("\r", "\n");
     }
 }

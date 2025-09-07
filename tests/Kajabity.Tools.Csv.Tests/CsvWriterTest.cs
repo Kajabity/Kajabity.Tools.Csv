@@ -139,7 +139,7 @@ namespace Kajabity.Tools.Csv.Tests
             string[][] recordsOut =
             [
                 ["aaa", "bb*b", "ccc"],
-                ["", "new" + Environment.NewLine + "line", "quoted"],
+                ["", "new\nline", "quoted"],
                 ["with", "\"other\"", "quo\"\"te"]
             ];
 

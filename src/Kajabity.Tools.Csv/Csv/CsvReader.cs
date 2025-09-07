@@ -428,7 +428,11 @@ namespace Kajabity.Tools.Csv
                     break;
 
                 case Action.AppendLineFeedToField:
-                    fieldBuilder.Append((char)ch).Append((char)ExtraLinefeedChar);
+                    fieldBuilder.Append((char)ch);
+                    if (ExtraLinefeedChar > 0)
+                    {
+                        fieldBuilder.Append((char)ExtraLinefeedChar);
+                    }    
                     break;
             }
         }

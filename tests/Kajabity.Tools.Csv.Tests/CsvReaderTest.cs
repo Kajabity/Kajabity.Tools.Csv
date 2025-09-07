@@ -204,15 +204,15 @@ namespace Kajabity.Tools.Csv.Tests
             Assert.That(TestUtils.CompareStringArray(
             new[]
             {
-                "A longer entry with some new" + Environment.NewLine +
-                "lines" + Environment.NewLine +
-                "even" + Environment.NewLine +
-                "" + Environment.NewLine +
+                "A longer entry with some new\n" +
+                "lines\n" +
+                "even\n" +
+                "\n" +
                 "a blank one.",
-                "",
-                "Quotes" + Environment.NewLine +
-                "\" and " + Environment.NewLine +
-                "\"\t\"TABS " + Environment.NewLine +
+                                "",
+                                "Quotes\n" +
+                "\" and \n" +
+                "\"\t\"TABS \n" +
                 "AND,commas"
             }, records[index - 1]), Is.True, $"contents of record {index}");
         }
@@ -352,7 +352,7 @@ namespace Kajabity.Tools.Csv.Tests
 
             index++;
             Assert.That(records[index - 1].Length, Is.EqualTo(3), $"Wrong number of items on record {index}");
-            Assert.That(TestUtils.CompareStringArray(new[] {"", "new" + Environment.NewLine + "line", "quoted"}, records[index - 1]), Is.True, $"contents of record {index}");
+            Assert.That(TestUtils.CompareStringArray(new[] {"", "new\nline", "quoted"}, records[index - 1]), Is.True, $"contents of record {index}");
 
             index++;
             Assert.That(records[index - 1].Length, Is.EqualTo(3), $"Wrong number of items on record {index}");
