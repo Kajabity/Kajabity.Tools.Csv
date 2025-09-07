@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net6.0;net8.0;net9.0</TargetFrameworks>
+
+    <!-- NuGet packaging -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+    <!-- Metadata -->
+    <PackageId>Kajabity.Tools.Csv</PackageId>
+    <Company>Williams Technologies Limited</Company>
+    <Copyright>Copyright © 2009-2025 Williams Technologies Limited.</Copyright>
+    <Authors>Simon J. Williams</Authors>
+    <Description>A NuGet library with classes to read and write “.csv” files including reading or appending a single field or row at a time.</Description>
+    <RepositoryUrl>https://github.com/Kajabity/Kajabity.Tools.Csv</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>kajabity.tools.csv.logo.png</PackageIcon>
+    <PackageProjectUrl>http://kajabity.com/kajabity-tools/csv-readerwriter-classes/</PackageProjectUrl>
+
+    <!-- Strong naming (optional) -->
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>Kajabity.Tools.Csv.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\..\LICENSE.txt" Pack="true" PackagePath="\" />
+    <None Include="..\..\kajabity.tools.csv.logo.png" Pack="true" PackagePath="\" />
+    <None Include="Kajabity.Tools.Csv.snk" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    <PackageReference Include="MinVer" Version="6.0.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>
