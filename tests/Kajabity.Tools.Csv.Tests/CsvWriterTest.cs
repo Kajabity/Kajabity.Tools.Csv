@@ -21,7 +21,7 @@
 namespace Kajabity.Tools.Csv.Tests
 {
     [TestFixture]
-    public class CsvWriterTest : KajabityToolsTest
+    public class CsvWriterTest
     {
         private static readonly string CsvTestDataDirectory = Path.Combine(AppContext.BaseDirectory, "TestData", "Csv");
         private static readonly string CsvOutputDirectory = Path.GetTempPath();
@@ -123,7 +123,7 @@ namespace Kajabity.Tools.Csv.Tests
             string[][] records = reader.ReadAll();
 
             Assert.That(records.Length, Is.EqualTo(1), "Should only be one record.");
-            Console.WriteLine ("Read :" + ToString(records[0]));
+            Console.WriteLine ("Read :" + TestUtils.ToString(records[0]));
             Assert.That(records[0].Length, Is.EqualTo(record.Length), $"Should be {record.Length} fields in record.");
 
             for (var fieldNo = 0; fieldNo < record.Length; fieldNo++)
@@ -163,22 +163,22 @@ namespace Kajabity.Tools.Csv.Tests
             var line = 0;
             foreach (var record in recordsIn)
             {
-                Console.WriteLine (++line + ":" + ToString(record));
+                Console.WriteLine (++line + ":" + TestUtils.ToString(record));
             }
 
             Assert.That(recordsIn.Length, Is.EqualTo(3), $"Wrong number of records in {filename}");
 
             var index = 0;
             Assert.That(recordsIn[index].Length, Is.EqualTo(3), $"Wrong number of items on record {index + 1}");
-            Assert.That(CompareStringArray(recordsOut[index], recordsIn[index]), Is.True, $"contents of record {index + 1}");
+            Assert.That(TestUtils.CompareStringArray(recordsOut[index], recordsIn[index]), Is.True, $"contents of record {index + 1}");
 
             index++;
             Assert.That(recordsIn[index].Length, Is.EqualTo(3), $"Wrong number of items on record {index + 1}");
-            Assert.That(CompareStringArray(recordsOut[index], recordsIn[index]), Is.True, $"contents of record {index + 1}");
+            Assert.That(TestUtils.CompareStringArray(recordsOut[index], recordsIn[index]), Is.True, $"contents of record {index + 1}");
 
             index++;
             Assert.That(recordsIn[index].Length, Is.EqualTo(3), $"Wrong number of items on record {index + 1}");
-            Assert.That(CompareStringArray(recordsOut[index], recordsIn[index]), Is.True, $"contents of record {index + 1}");
+            Assert.That(TestUtils.CompareStringArray(recordsOut[index], recordsIn[index]), Is.True, $"contents of record {index + 1}");
         }
     }
 }

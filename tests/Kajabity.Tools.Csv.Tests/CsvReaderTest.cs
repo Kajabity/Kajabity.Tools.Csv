@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Kajbity is a trademark of Williams Technologies Limited.
+ * Kajabity is a trademark of Williams Technologies Limited.
  *
  * http://www.kajabity.com
  */
 
+
 namespace Kajabity.Tools.Csv.Tests
 {
     [TestFixture]
-    public class CsvReaderTest : KajabityToolsTest
+    public class CsvReaderTest
     {
         private static readonly string CsvTestDataDirectory = Path.Combine(AppContext.BaseDirectory, "TestData", "Csv");
         private static readonly string CsvOutputDirectory = Path.GetTempPath();
@@ -68,7 +69,7 @@ namespace Kajabity.Tools.Csv.Tests
 
             foreach (var record in records)
             {
-                Console.WriteLine  (++line + ":" + ToString(record));
+                Console.WriteLine  (++line + ":" + TestUtils.ToString(record));
             }
 
             Assert.That(records.Length, Is.EqualTo(1), "Wrong number of record in " + EmptyTestFile);
@@ -88,12 +89,12 @@ namespace Kajabity.Tools.Csv.Tests
 
             foreach (var record in records)
             {
-                Console.WriteLine  (++line + ":" + ToString(record));
+                Console.WriteLine  (++line + ":" + TestUtils.ToString(record));
             }
 
             Assert.That(records.Length, Is.EqualTo(2), $"Wrong number of records in {SimpleTestFile}");
-            Assert.That(CompareStringArray(new[] { "aaa", "bbb", "ccc" }, records[0]), Is.True, "the first record");
-            Assert.That(CompareStringArray(new[] { "xxx", "yyy", "zzz" }, records[1]), Is.True, "the second record");
+            Assert.That(TestUtils.CompareStringArray(new[] { "aaa", "bbb", "ccc" }, records[0]), Is.True, "the first record");
+            Assert.That(TestUtils.CompareStringArray(new[] { "xxx", "yyy", "zzz" }, records[1]), Is.True, "the second record");
         }
 
         [Test]
@@ -108,7 +109,7 @@ namespace Kajabity.Tools.Csv.Tests
 
             foreach (var record in records)
             {
-                Console.WriteLine (++line + ":" + ToString(record));
+                Console.WriteLine (++line + ":" + TestUtils.ToString(record));
             }
 
             Assert.That(records.Length, Is.EqualTo(3), $"Wrong number of records in {ThreeBlankLinesTestFile}");
@@ -132,26 +133,26 @@ namespace Kajabity.Tools.Csv.Tests
 
             foreach (var record in records)
             {
-                Console.WriteLine (++line + ":" + ToString(record));
+                Console.WriteLine (++line + ":" + TestUtils.ToString(record));
             }
 
             Assert.That(records.Length, Is.EqualTo(4), $"Wrong number of records in {EmptyFieldTestFile}");
 
             var index = 1;
             Assert.That(records[index - 1].Length, Is.EqualTo(3), $"Wrong number of items on record {index}");
-            Assert.That(CompareStringArray(new[] { "aaa", "bbb", "ccc" }, records[index - 1]), Is.True, $"contents of record {index}");
+            Assert.That(TestUtils.CompareStringArray(new[] { "aaa", "bbb", "ccc" }, records[index - 1]), Is.True, $"contents of record {index}");
 
             index++;
             Assert.That(records[index - 1].Length, Is.EqualTo(3), $"Wrong number of items on record {index}");
-            Assert.That(CompareStringArray(new[] { "", "eee", "fff" }, records[index - 1]), Is.True, $"contents of record {index}");
+            Assert.That(TestUtils.CompareStringArray(new[] { "", "eee", "fff" }, records[index - 1]), Is.True, $"contents of record {index}");
 
             index++;
             Assert.That(records[index - 1].Length, Is.EqualTo(3), $"Wrong number of items on record {index}");
-            Assert.That(CompareStringArray(new[] { "ggg", "", "jjj" }, records[index - 1]), Is.True, $"contents of record {index}");
+            Assert.That(TestUtils.CompareStringArray(new[] { "ggg", "", "jjj" }, records[index - 1]), Is.True, $"contents of record {index}");
 
             index++;
             Assert.That(records[index - 1].Length, Is.EqualTo(3), $"Wrong number of items on record {index}");
-            Assert.That(CompareStringArray(new[] { "xxx", "yyy", "" }, records[index - 1]), Is.True, $"contents of record {index}");
+            Assert.That(TestUtils.CompareStringArray(new[] { "xxx", "yyy", "" }, records[index - 1]), Is.True, $"contents of record {index}");
         }
 
         [Test]
@@ -166,18 +167,18 @@ namespace Kajabity.Tools.Csv.Tests
 
             foreach (var record in records)
             {
-                Console.WriteLine (++line + ":" + ToString(record));
+                Console.WriteLine (++line + ":" + TestUtils.ToString(record));
             }
 
             Assert.That(records.Length, Is.EqualTo(2), $"Wrong number of records in {QuotedTestFile}");
 
             var index = 1;
             Assert.That(records[index - 1].Length, Is.EqualTo(2), $"Wrong number of items on record {index}");
-            Assert.That(CompareStringArray(new[] { "2lines, 2 fields, With, commas", "With \"Quotes\"" }, records[index - 1]), Is.True, $"contents of record {index}");
+            Assert.That(TestUtils.CompareStringArray(new[] { "2lines, 2 fields, With, commas", "With \"Quotes\"" }, records[index - 1]), Is.True, $"contents of record {index}");
 
             index++;
             Assert.That(records[index - 1].Length, Is.EqualTo(2), $"Wrong number of items on record {index}");
-            Assert.That(CompareStringArray(["With	Tabs", "Quotes\" and \"	\"TABS AND,commas"], records[index - 1]), Is.True, $"contents of record {index}");
+            Assert.That(TestUtils.CompareStringArray(["With	Tabs", "Quotes\" and \"	\"TABS AND,commas"], records[index - 1]), Is.True, $"contents of record {index}");
         }
 
         [Test]
@@ -192,7 +193,7 @@ namespace Kajabity.Tools.Csv.Tests
 
             foreach (var record in records)
             {
-                Console.WriteLine  (++line + ":" + ToString(record));
+                Console.WriteLine  (++line + ":" + TestUtils.ToString(record));
             }
 
             Assert.That(records.Length, Is.EqualTo(1), $"Wrong number of records in {QuotedLineBreaksTestFile}");
@@ -200,7 +201,7 @@ namespace Kajabity.Tools.Csv.Tests
             var index = 1;
 
             Assert.That(records[index - 1].Length, Is.EqualTo(3), $"Wrong number of items on record {index}");
-            Assert.That(CompareStringArray(
+            Assert.That(TestUtils.CompareStringArray(
             new[]
             {
                 "A longer entry with some new" + Environment.NewLine +
@@ -228,13 +229,13 @@ namespace Kajabity.Tools.Csv.Tests
 
             foreach (var record in records)
             {
-                Console.WriteLine (++line + ":" + ToString(record));
+                Console.WriteLine (++line + ":" + TestUtils.ToString(record));
             }
 
             Assert.That(records.Length, Is.EqualTo(3), $"Wrong number of records in {FieldNamesTestFile}");
-            Assert.That(CompareStringArray(new[] { "Title", "Forename", "Last Name", "Age" }, records[0]), Is.True, $"the first record in {FieldNamesTestFile}");
-            Assert.That(CompareStringArray(new[] { "Mr.", "John", "Smith", "21" }, records[1]), Is.True, $"the second record in {FieldNamesTestFile}");
-            Assert.That(CompareStringArray(new[] { "Mrs.", "Jane", "Doe-Jones", "42" }, records[2]), Is.True, $"the third record in {FieldNamesTestFile}");
+            Assert.That(TestUtils.CompareStringArray(new[] { "Title", "Forename", "Last Name", "Age" }, records[0]), Is.True, $"the first record in {FieldNamesTestFile}");
+            Assert.That(TestUtils.CompareStringArray(new[] { "Mr.", "John", "Smith", "21" }, records[1]), Is.True, $"the second record in {FieldNamesTestFile}");
+            Assert.That(TestUtils.CompareStringArray(new[] { "Mrs.", "Jane", "Doe-Jones", "42" }, records[2]), Is.True, $"the third record in {FieldNamesTestFile}");
         }
 
         [Test]
@@ -249,11 +250,11 @@ namespace Kajabity.Tools.Csv.Tests
 
             foreach (var record in records)
             {
-                Console.WriteLine (++line + ":" + ToString(record));
+                Console.WriteLine (++line + ":" + TestUtils.ToString(record));
             }
 
             Assert.That(records.Length, Is.EqualTo(1), $"Wrong number of records in {SpacesTestFile}");
-            Assert.That(CompareStringArray(new[] { "trailing ", " leading", " both " }, records[0]), Is.True, $"the first record in {SpacesTestFile}");
+            Assert.That(TestUtils.CompareStringArray(new[] { "trailing ", " leading", " both " }, records[0]), Is.True, $"the first record in {SpacesTestFile}");
         }
 
         [Test]
@@ -268,26 +269,26 @@ namespace Kajabity.Tools.Csv.Tests
 
             foreach (var record in records)
             {
-                Console.WriteLine (++line + ":" + ToString(record));
+                Console.WriteLine (++line + ":" + TestUtils.ToString(record));
             }
 
             Assert.That(records.Length, Is.EqualTo(4), $"Wrong number of records in {DifferentNumberFieldsTestFile}");
 
             var index = 1;
             Assert.That(records[index - 1].Length, Is.EqualTo(3), $"Wrong number of items on record {index}");
-            Assert.That(CompareStringArray(new[] { "A", "B", "C" }, records[index - 1]), Is.True, $"contents of record {index}");
+            Assert.That(TestUtils.CompareStringArray(new[] { "A", "B", "C" }, records[index - 1]), Is.True, $"contents of record {index}");
 
             index++;
             Assert.That(records[index - 1].Length, Is.EqualTo(4), $"Wrong number of items on record {index}");
-            Assert.That(CompareStringArray(new[] { "a", "b", "c", "d" }, records[index - 1]), Is.True, $"contents of record {index}");
+            Assert.That(TestUtils.CompareStringArray(new[] { "a", "b", "c", "d" }, records[index - 1]), Is.True, $"contents of record {index}");
 
             index++;
             Assert.That(records[index - 1].Length, Is.EqualTo(2), $"Wrong number of items on record {index}");
-            Assert.That(CompareStringArray(new[] { "9", "8" }, records[index - 1]), Is.True, $"contents of record {index}");
+            Assert.That(TestUtils.CompareStringArray(new[] { "9", "8" }, records[index - 1]), Is.True, $"contents of record {index}");
 
             index++;
             Assert.That(records[index - 1].Length, Is.EqualTo(5), $"Wrong number of items on record {index}");
-            Assert.That(CompareStringArray(new[] { "1", "2", "3", "4", "5" }, records[index - 1]), Is.True, $"contents of record {index}");
+            Assert.That(TestUtils.CompareStringArray(new[] { "1", "2", "3", "4", "5" }, records[index - 1]), Is.True, $"contents of record {index}");
         }
 
         [Test]
@@ -302,7 +303,7 @@ namespace Kajabity.Tools.Csv.Tests
 
             foreach (var record in records)
             {
-                Console.WriteLine (++line + ":" + ToString(record));
+                Console.WriteLine (++line + ":" + TestUtils.ToString(record));
             }
         }
 
@@ -314,14 +315,14 @@ namespace Kajabity.Tools.Csv.Tests
             var reader = new CsvReader(fileStream);
 
             Console.WriteLine ($"Line 1, Field 1: \"{reader.ReadField()}\"");
-            Console.WriteLine ($"Rest of Line 1: \"{ToString(reader.ReadRecord())}\"");
+            Console.WriteLine ($"Rest of Line 1: \"{TestUtils.ToString(reader.ReadRecord())}\"");
             Console.WriteLine ("Rest of File: ");
 
             string[][] records = reader.ReadAll();
             var line = 1;
             foreach (var record in records)
             {
-                Console.WriteLine (++line + ":" + ToString(record));
+                Console.WriteLine (++line + ":" + TestUtils.ToString(record));
             }
 
             Console.WriteLine ("Done.");
@@ -340,19 +341,22 @@ namespace Kajabity.Tools.Csv.Tests
 
             foreach (var record in records)
             {
-                Console.WriteLine (++line + ":" + ToString(record));
+                Console.WriteLine (++line + ":" + TestUtils.ToString(record));
             }
 
-            Assert.That(records.Length, Is.EqualTo(3), $"Wrong number of records in {DifferentQuotesFile}");
+            Assert.That(records.Length, Is.EqualTo(3), "Wrong number of records in " + DifferentQuotesFile);
 
             var index = 1;
             Assert.That(records[index - 1].Length, Is.EqualTo(3), $"Wrong number of items on record {index}");
-            Assert.That(CompareStringArray(new[] { "aaa", "bbb", "ccc" }, records[index - 1]), Is.True, $"contents of record {index}");
-            Assert.That(CompareStringArray(new[] { "", "new" + Environment.NewLine + "line", "quoted" }, records[index - 1]), Is.True, $"contents of record {index}");
+            Assert.That(TestUtils.CompareStringArray(new[] {"aaa", "bbb", "ccc"}, records[index - 1]), Is.True, $"contents of record {index}");
 
             index++;
             Assert.That(records[index - 1].Length, Is.EqualTo(3), $"Wrong number of items on record {index}");
-            Assert.That(CompareStringArray(new[] { "with", "\"other\"", "quo\"\"te" }, records[index - 1]), Is.True, $"contents of record {index}");
+            Assert.That(TestUtils.CompareStringArray(new[] {"", "new" + Environment.NewLine + "line", "quoted"}, records[index - 1]), Is.True, $"contents of record {index}");
+
+            index++;
+            Assert.That(records[index - 1].Length, Is.EqualTo(3), $"Wrong number of items on record {index}");
+            Assert.That(TestUtils.CompareStringArray(new[] {"with", "\"other\"", "quo\"\"te"}, records[index - 1]), Is.True, $"contents of record {index}");
         }
     }
 }
