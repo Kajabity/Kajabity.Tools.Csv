@@ -29,20 +29,24 @@ namespace Kajabity.Tools.Csv.Tests
         [OneTimeSetUp]
         public void SetUp()
         {
-            TestContext.WriteLine($"Starting test: {TestContext.CurrentContext.Test.Name}");
-
             if (!Directory.Exists(CsvOutputDirectory))
             {
-                TestContext.WriteLine("Creating CSV output directory :" + CsvOutputDirectory);
+                Console.WriteLine ($"Creating CSV output directory : {CsvOutputDirectory}" );
                 Directory.CreateDirectory(CsvOutputDirectory);
             }
+        }
+
+        [SetUp]
+        public void LogTestStart()
+        {
+            Console.WriteLine ($"Starting test: {TestContext.CurrentContext.Test.Name}");
         }
 
         [Test]
         public void TestCsvWriter()
         {
             var filename = Path.Combine(CsvTestDataDirectory, "mixed.csv");
-            TestContext.WriteLine("Loading " + filename);
+            Console.WriteLine ("Loading " + filename);
             using var inStream = File.OpenRead(filename);
             var reader = new CsvReader(inStream);
             string[][] records = reader.ReadAll();
@@ -71,7 +75,7 @@ namespace Kajabity.Tools.Csv.Tests
 
             // Check it's empty.
             var info = new FileInfo(filename);
-            Assert.AreEqual(0, info.Length, "File length not zero.");
+            Assert.That(info.Length, Is.EqualTo(0), "File length not zero.");
 
             // Open for append
             using (var stream = File.OpenWrite(filename))
@@ -83,7 +87,7 @@ namespace Kajabity.Tools.Csv.Tests
 
             // Check it's not empty.
             info = new FileInfo(filename);
-            Assert.AreEqual(lenRecord, info.Length, "File length not increased.");
+            Assert.That(info.Length, Is.EqualTo(lenRecord), "File length not increased.");
         }
 
         [Test]
@@ -92,7 +96,7 @@ namespace Kajabity.Tools.Csv.Tests
             var filename = Path.Combine(CsvOutputDirectory, "test-write-alternate-separator.csv");
             var record = new[] { "AA,AA original separator", "BB|BB new separator", "CCCC" };
 
-            TestContext.WriteLine("Creating empty " + filename);
+            Console.WriteLine ("Creating empty " + filename);
             using (var stream = File.Open(filename, FileMode.OpenOrCreate, FileAccess.ReadWrite))
             {
                 stream.SetLength(0);
@@ -100,10 +104,10 @@ namespace Kajabity.Tools.Csv.Tests
 
             // Check it's empty.
             var info = new FileInfo(filename);
-            Assert.AreEqual(0, info.Length, "File length not zero.");
+            Assert.That(info.Length, Is.EqualTo(0), "File length not zero.");
 
             // Open for append
-            TestContext.WriteLine("Writing " + filename);
+            Console.WriteLine ("Writing " + filename);
             using (var stream = File.OpenWrite(filename))
             {
                 var writer = new CsvWriter(stream);
@@ -112,19 +116,19 @@ namespace Kajabity.Tools.Csv.Tests
                 stream.Flush();
             }
 
-            TestContext.WriteLine("Loading " + filename);
+            Console.WriteLine ("Loading " + filename);
             using var readStream = File.OpenRead(filename);
             var reader = new CsvReader(readStream);
             reader.Separator = '|';
             string[][] records = reader.ReadAll();
 
-            Assert.AreEqual(1, records.Length, "Should only be one record.");
-            TestContext.WriteLine("Read :" + ToString(records[0]));
-            Assert.AreEqual(record.Length, records[0].Length, "Should be " + record.Length + " fields in record.");
+            Assert.That(records.Length, Is.EqualTo(1), "Should only be one record.");
+            Console.WriteLine ("Read :" + ToString(records[0]));
+            Assert.That(records[0].Length, Is.EqualTo(record.Length), $"Should be {record.Length} fields in record.");
 
             for (var fieldNo = 0; fieldNo < record.Length; fieldNo++)
             {
-                Assert.AreEqual(record[fieldNo], records[0][fieldNo], "Field " + record.Length + " Should be " + record[fieldNo]);
+                Assert.That(records[0][fieldNo], Is.EqualTo(record[fieldNo]), $"Field {fieldNo} Should be {record[fieldNo]}");
             }
         }
 
@@ -139,7 +143,7 @@ namespace Kajabity.Tools.Csv.Tests
                 ["with", "\"other\"", "quo\"\"te"]
             ];
 
-            TestContext.WriteLine("Creating " + filename);
+            Console.WriteLine ("Creating " + filename);
             using (var stream = File.Open(filename, FileMode.OpenOrCreate, FileAccess.ReadWrite))
             {
                 stream.SetLength(0);
@@ -150,7 +154,7 @@ namespace Kajabity.Tools.Csv.Tests
                 stream.Flush();
             }
 
-            TestContext.WriteLine("Loading " + filename);
+            Console.WriteLine ("Loading " + filename);
             using var readStream = File.OpenRead(filename);
             var reader = new CsvReader(readStream);
             reader.Quote = '*';
@@ -159,22 +163,22 @@ namespace Kajabity.Tools.Csv.Tests
             var line = 0;
             foreach (var record in recordsIn)
             {
-                TestContext.WriteLine(++line + ":" + ToString(record));
+                Console.WriteLine (++line + ":" + ToString(record));
             }
 
-            Assert.IsTrue(recordsIn.Length == 3, "Wrong number of records in " + filename);
+            Assert.That(recordsIn.Length, Is.EqualTo(3), $"Wrong number of records in {filename}");
 
             var index = 0;
-            Assert.IsTrue(recordsIn[index].Length == 3, "Wrong number of items on record " + (index + 1));
-            Assert.IsTrue(CompareStringArray(recordsOut[index], recordsIn[index]), "contents of record " + (index + 1));
+            Assert.That(recordsIn[index].Length, Is.EqualTo(3), $"Wrong number of items on record {index + 1}");
+            Assert.That(CompareStringArray(recordsOut[index], recordsIn[index]), Is.True, $"contents of record {index + 1}");
 
             index++;
-            Assert.IsTrue(recordsIn[index].Length == 3, "Wrong number of items on record " + (index + 1));
-            Assert.IsTrue(CompareStringArray(recordsOut[index], recordsIn[index]), "contents of record " + (index + 1));
+            Assert.That(recordsIn[index].Length, Is.EqualTo(3), $"Wrong number of items on record {index + 1}");
+            Assert.That(CompareStringArray(recordsOut[index], recordsIn[index]), Is.True, $"contents of record {index + 1}");
 
             index++;
-            Assert.IsTrue(recordsIn[index].Length == 3, "Wrong number of items on record " + (index + 1));
-            Assert.IsTrue(CompareStringArray(recordsOut[index], recordsIn[index]), "contents of record " + (index + 1));
+            Assert.That(recordsIn[index].Length, Is.EqualTo(3), $"Wrong number of items on record {index + 1}");
+            Assert.That(CompareStringArray(recordsOut[index], recordsIn[index]), Is.True, $"contents of record {index + 1}");
         }
     }
 }
